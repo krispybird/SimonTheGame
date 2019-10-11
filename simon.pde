@@ -8,7 +8,6 @@ public class Simon{
 	//how long one turn lasts
 	int turnDuration = 1000;
 
-
 	//total rounds and buttons 
 	int numRounds;
 	int numButtons;
@@ -21,6 +20,8 @@ public class Simon{
 	//use this to advance the next round
 	int counters[];
 
+	PFont font = createFont("Courier", 40);
+
 	//Constructor for initialization
 	public Simon(){
 		numButtons = 9;
@@ -32,6 +33,8 @@ public class Simon{
 		for (int i = 0; i < numRounds; i++){
 			counters[i] = int(random(0, numButtons));
 		}
+		println(PFont.list());
+		textFont(font);
 	}
 
 
@@ -45,6 +48,8 @@ public class Simon{
 		numButtons = nb;
 		numRounds = nr;
 		counters[round] = int(random(0, numButtons - 1));	
+
+		textFont(font);
 	}
 
 	//Update the score. No negative integers
@@ -96,25 +101,27 @@ public class Simon{
 	//Stats for the player
 	public void displayStats(){
 		pushMatrix();
-		textSize(32);
-		fill(100, 200, 190);
-		text("SIMON", width/2, 50);
+		textSize(60);
+		fill(255);//100, 200, 190);
+		text("simon the game", width/2, 50);
 
-		textSize(24);
-		fill(255,215,0);
+		textSize(40);
+		//fill(255,215,0);
+		fill(255,223,0);
+		fill(255,255,0);
 		if (round < 0){
-			text("Round --" + " of " + numRounds, width/2, 80);
+			text("Round --" + " of " + numRounds, width/2, 90);
 		}
 		else if (round < numRounds){
-			text("Round " + int(round+1) + " of " + numRounds, width/2, 80);
+			text("Round " + int(round+1) + " of " + numRounds, width/2, 90);
 		}
 
 		else if (round >= numRounds){
-			text("Round " + int(round) + " of " + numRounds, width/2, 80);
+			text("Round " + int(round) + " of " + numRounds, width/2, 90);
 		}
 		
-		text("Score: " + score, width/2, 110);
-		text("Lives left: " + life, width/2, 140);
+		text("Score: " + score, width/2, 130);
+		text("Lives left: " + life, width/2, 170);
 		popMatrix();
 	}
 
@@ -135,25 +142,26 @@ public class Simon{
 
 	public void displaySimonSays(){
 		textSize(40);
-		fill(100, 200, 190);
+		fill(255);//
+		//fill(100, 200, 190);
 		text("Watch carefully...", width/2, height - 60);
 	}
 
 	public void displayYouSay(){
 		textSize(40);
-		fill(100, 200, 190);
-		text("Copy Simon...", width/2, height - 60);	
+		fill(255);//100, 200, 190);
+		text("Copy the sequence...", width/2, height - 60);	
 	}
 
-	public void displayWrongMove(){
-		textSize(40);
+	public void displayWrongMove()
+{		textSize(40);
 		fill(255, 20, 10);
 		text("Wrong! Try again...", width/2, height - 110);
 	}
 
 	public void displayStart(){
 		textSize(40);
-		fill(255,127,80);
+		fill(255);//,127,80);
 		text("Click anywhere to start...", width/2, height - 60);
 	}
 

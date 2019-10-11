@@ -62,7 +62,7 @@ public void setup(){
 	//generate buttons
 	for (int i = 0; i < 3; i++){
 		for (int j = 0; j < 3; j++){
-			simon.buttons.add(new SimonButton((i+1) * width/4, (j+1) * height/4, dimensions, dimensions, idCounter));
+			simon.buttons.add(new SimonButton(20 + (i+1) * width/4, 20 + (j+1) * height/4, dimensions, dimensions, idCounter));
 			idCounter++;
 		}
 	}
@@ -78,7 +78,7 @@ Logic is as follows:
 public void draw(){
 
 	clear();
-	background(0, 191,255);
+	background(0, 191,255, 50);
 	simon.displayStats();
 
 	//Go through start/win/lose conditions, yadda yadda...
