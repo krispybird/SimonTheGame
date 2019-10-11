@@ -7,6 +7,9 @@
 
 }*/
 
+//Part of the logic of the draw loop + mouse pressed/release was based off of Saxion-ACT's simon code -- especially in ironing out the bugs with timing and making sure that the 'glow' animation lights up when pressed
+//https://github.com/SaxionACT-Art-and-Technology/Processing-Simon-Says
+
 import java.util.ArrayList;
 
 Simon simon;
@@ -18,9 +21,9 @@ boolean start = false;	//starting flag
 boolean wrong = false;
 boolean userWent = false;
 int currentButtonSelected = -1; //the current button selected
-int lightPosition = 0; //position of how far along in the string of sequences the light is
+int simonsPosition = 0; //position of how far along in the string of sequences the light is
 PImage img;
-
+final int FPS = 2;
 
 int startTime, timer;
 
@@ -38,6 +41,7 @@ public void setup(){
 	rectMode(CENTER);
 	textAlign(CENTER);
 	imageMode(CENTER);
+	frameRate(FPS);
 
 	simon = new Simon();
 
@@ -92,18 +96,19 @@ public void draw(){
 
 	else{
 		
+		if (millis() >= timer){
+			simon.resetButtons();
+		}
 
 
-		
-		
+
 
 		if (simonSays){
-			simon.displaySimonSays();
-			if (millis() - timer >= 2000 && millis() - timer <= 3000){
+			if (millis() - timer > 1000 && millis() - timer <= 1500){
 				simon.resetButtons();
 			}
-			else if (millis() - timer >= 2000){
-				
+			 if (millis() - timer >= 1000){
+				simon.displaySimonSays();
 				simonsTurn();
 			}
 
@@ -114,74 +119,68 @@ public void draw(){
 
 		}
 		else{
-			if (millis() - timer >= 1000){ 
+			//simon.resetButtons();
+			/*if (millis() - timer >= 000){ 
 				simon.displayYouSay();
 				//yourTurn();
-			}
+			}*/
 			//yourTurn();
+			
+
+				simon.displayYouSay();
+			
 		}
+
 		for (int i = 0; i < simon.buttons.size(); i++){
 			simon.buttons.get(i).drawButton();
 		}
 
-	}
-	
-	
-
-
-
-	
+	}	
 }
+
 
 void simonsTurn(){
-	
-	//advance round if the user did not get the round wrong, otherwise repeat the current one
-	println("Simon round" + simon.round);
 
-	
 	if (millis() >= timer){
+		int currentLight = simon.counters[simonsPosition];
+		simon.buttons.get(currentLight).setAnimFlag(true);
+		println("Simon's position: " + simonsPosition);
 
-		//issue is that it is continually advancing rounds 
-		
-		//if (millis() - timer >= 1000){
-				
-			//simon.buttons.get(simon.counters[lightPosition]).setAnimFlag(true);
-			println("Lightpos: " + lightPosition + ", round: " +  simon.round);
-			
-				
-			simon.buttons.get(simon.counters[lightPosition]).setAnimFlag(true);
-			
-			if (lightPosition < simon.round){
-				lightPosition++;
-			}
-			else{
-				//if we finished, then advance
-				simonSays = false;
-				/*simon.resetButtons();*/
-				lightPosition = 0;
+		if (simonsPosition < simon.round){
+			simonsPosition++;
+			println("Advancing round: " + simonsPosition);
+		}
+		else{
+			//if we finished, then advance
+			simonSays = false;
+			simonsPosition = 0;
 
-				if (!wrong){
-					simon.resetButtons();
-				}
-			}
-			timer = millis() + 100;	
+			/*if (!wrong){
+				simon.resetButtons();
+			}*/
+			timer = millis() + simon.turnDuration;
+		}
 	}
-
 }
-
-//check if this is the correct button that is clicked
-//if not then reject, but avoid false clicks otherwise
 
 void yourTurn(){
 	/*for (int i = 0; i < simon.buttons.size(); i++){
 		simon.buttons.get(i).setAnimFlag(false);
 	}*/
-	println("Round " + simon.round + " lP" + lightPosition);
+	println("Round " + simon.round + " lP" + simonsPosition);
+
 }
 
 void mousePressed(){
 	if (!simonSays){
-		simon.resetButtons();
+		for (int i = 0; i < simon.buttons.size(); i++){ 
+			if (simon.buttons.get(i).isClicked(mouseX, mouseY)){
+				println("Pressed: " + i);
+				currentButtonSelected = i;
+				simon.buttons.get(currentButtonSelected).setAnimFlag(true);
+				simon.buttons.get(i).drawButton();
+			}
+		}
 	}
 }
 
@@ -193,25 +192,41 @@ void mouseReleased(){
 		return;
 	}
 
-	if (!simonSays){
+	else if (!simonSays){
 		//sets a wrong flag unless we did click the right button
 		wrong = true;
-		for (int i = 0; i < simon.buttons.size(); i++){
-			if (simon.buttons.get(i).isClicked(mouseX, mouseY)){
-				currentButtonSelected = i;
 
-				if (simon.buttons.get(simon.counters[lightPosition]).buttonID == currentButtonSelected){
+		for (int i = 0; i < simon.buttons.size(); i++){
+
+			//if selected
+			if (simon.buttons.get(i).isClicked(mouseX, mouseY)){
+
+				currentButtonSelected = i;
+				simon.buttons.get(currentButtonSelected).setAnimFlag(true);
+
+
+				if (simon.buttons.get(simon.counters[simonsPosition]).buttonID == currentButtonSelected){
 					//good! advance 
-					simon.buttons.get(simon.counters[lightPosition]).setAnimFlag(true);
+					
 					wrong = false;
-					if (lightPosition < simon.round){
-						lightPosition++;
+
+					if (simonsPosition < simon.round){
+						simonsPosition++;
 					}
-					else{
+
+					else if (simonsPosition >= simon.round){
 						simonSays = true;
-						lightPosition = 0;
+						simonsPosition = 0;
+						if (simon.round < simon.numRounds){
+							simon.advanceRound();
+						}
+						simon.updateScore(1);
+		
+						timer = millis() + simon.turnDuration;
+
 					}
 				}
+
 
 			}
 		}
@@ -219,12 +234,16 @@ void mouseReleased(){
 		if (wrong){
 			simon.displayWrongMove();
 			simonSays = true;
-			lightPosition = 0;
+			simonsPosition = 0;
 			simon.life--;
+			simon.updateScore(-1);
+			timer = millis() - simon.turnDuration;
+
 		}
-		else{
-			simon.advanceRound();
-		}
+		
+		/*else{
+			
+		}*/
 	}
 	
 }

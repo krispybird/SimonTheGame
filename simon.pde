@@ -24,14 +24,15 @@ public class Simon{
 	//constructor for initializing the game simon
 	public Simon(){
 		numButtons = 4;
-		numRounds = 5;
+		numRounds = 8;
 
 		counters  = new int[numRounds];
 		buttons = new ArrayList<SimonButton>();
 
+		print("Lights: ");
 		for (int i = 0; i < numRounds; i++){
-			counters[i] = int(random(0, numButtons - 1));
-			println("Numbers: " + i + " " + counters[i]);
+			counters[i] = int(random(0, 40)) % 4;
+			print(counters[i] + " ");
 
 		}
 	}
@@ -69,7 +70,7 @@ public class Simon{
 	//checks whether the player has won
 	public boolean checkWinStatus(){
 		if (checkLifeStatus()){
-			if (round >= numRounds - 1){
+			if (round > numRounds - 1){
 				win = true;
 				return true;
 			}
@@ -103,8 +104,12 @@ public class Simon{
 		if (round < 0){
 			text("Round --" + " of " + numRounds, width/2, 80);
 		}
-		else{
+		else if (round < numRounds){
 			text("Round " + int(round+1) + " of " + numRounds, width/2, 80);
+		}
+
+		else if (round >= numRounds){
+			text("Round " + int(round) + " of " + numRounds, width/2, 80);
 		}
 		
 		text("Score: " + score, width/2, 110);
