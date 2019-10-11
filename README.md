@@ -4,7 +4,7 @@
  
  By: Tiffany
  
- This game is based off of Simon. Run files inside the game directory
+ This game is based off of Simon. Run files inside a directory called 'game' to start
  
  To play, follow the sequence in the order they appear.
  
