@@ -1,44 +1,36 @@
-//class for a button
+//Button class
+//Contains most of the data needed to draw buttons and animate when necessary
+
 public class SimonButton {
-	int colour[];
+
 	int xOrigin, yOrigin;
-	int width, height;
+	int buttonWidth, buttonHeight;
 	int buttonID;
+	PImage icon_default;
+	PImage icon_alt;
 
 	//animates the alternate animation for the button (e.g. a glow)
 	boolean altAnim = false;
 
-	//constructor
+	//constructors
 	public SimonButton(){
-		
-		colour = new int[]{120, 120, 120, 100};
 		buttonID = 0;
+		icon_default = loadImage("assets/icon-neutral.png");
 	}
 
-	public SimonButton(int x, int y, int w, int h, int c[], int id){
+	public SimonButton(int x, int y, int w, int h, int id){
 		xOrigin = x; 
 		yOrigin = y;
-		width = w;
-		height = h;
-		colour = c;
+		buttonWidth = w;
+		buttonHeight = h;
 		buttonID = id;
-	}
 
-	public SimonButton(int x, int y, int w, int h,int r, int g, int b, int a, int id){
-		xOrigin = x; 
-		yOrigin = y;
-		width = w;
-		height = h;
-		colour = new int[] {r, g, b, a};
-		/*colour[0] = r;
-		colour[1] = g;
-		colour[2] = b;
-		colour[3] = a;//= {r, g, b, a};*/
-		buttonID = id;
+		icon_default = loadImage("assets/icon-neutral.png");
+		icon_alt = loadImage("assets/icon-alt-" + id + ".png");
 	}
 
 
-	//flip to the animation state
+	//Gettters/setters to modify animation flag
 	public void setAnimFlag(){
 		altAnim = !altAnim;
 	}
@@ -51,56 +43,28 @@ public class SimonButton {
 		return altAnim;
 	}
 
-	
 
-	//draw the button
+	//draw the button or it's animated counterpart
 	public void drawButton(){	
 		pushMatrix();
-		noStroke();
-		//fill(colour[0], colour[1], colour[2], colour[3]);
 
 		if (altAnim){
-			fill(colour[0], colour[1], colour[2], colour[3]);
+			image(icon_alt, xOrigin, yOrigin, buttonWidth, buttonHeight);
 		}
 		else{
-			fill(203, 210, 223);
+			image(icon_default, xOrigin, yOrigin, buttonWidth, buttonHeight);
 		}
-		rect(xOrigin, yOrigin, width, height, 20);
 		popMatrix();
 	}
 
-	public void animateButton(){
-		//if (altAnim){
-			//do the glow;
-		pushMatrix();
-		/*strokeWeight(40);
-		stroke(colour[0], colour[1], colour[2], colour[3]);*/
-			
-			//noStroke();
-		fill(colour[0], colour[1], colour[2], colour[3]);
-		
-		rect(xOrigin, yOrigin, width, height, 6);
-
-		popMatrix();
-		//fill(colour[0], colour[1], colour[2], colour[3]);
-		//rect(xOrigin, yOrigin, width, height);
-		//}
-	}
-
-
-
-	//bounds checking to see if the button is clicked
-	//there's probably a library to check it more eaisly in processing but whatever
+	//Do some bounds checking to see if we clicked this button
 	public boolean isClicked(int x, int y){
-		if (x >= xOrigin - width/2 && x <= xOrigin + width/2){
-			if (y >= yOrigin - height/2 && y <= yOrigin + height/2){
-				println("Button clicked at " + buttonID);
+		if (x >= xOrigin - buttonWidth/2 && x <= xOrigin + buttonWidth/2){
+			if (y >= yOrigin - buttonHeight/2 && y <= yOrigin + buttonHeight/2){
 				return true;
 			}
 		}
-		//println("false hitbox");
 		return false;
 	}
-
 
 }

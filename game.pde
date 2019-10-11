@@ -1,40 +1,48 @@
-//Make a simple game played with the mouse
-//generates shapes along the screen that you have to click
 
-//Is Simon
-/*public static void main(String[] args){
-	
+/*
+IAT 806 - Assignment 7 - Make a game using OOP
+Tiffany Wun
+ID: 300407747
 
-}*/
+SIMON - Emoji version
 
-//Part of the logic of the draw loop + mouse pressed/release was based off of Saxion-ACT's simon code -- especially in ironing out the bugs with timing and making sure that the 'glow' animation lights up when pressed
-//https://github.com/SaxionACT-Art-and-Technology/Processing-Simon-Says
++ About: This is a simple variant of "Simon" that uses the old Android emoji collection as buttons
+
++ Instructions: Use mouse to play. Watch for the icon changes, and beat all rounds to win! Aim for the highest score. Wrong clicks cost 1 life. The game is over when you lose all your lives.
+
++ Structure: This code has two classes: class SimonButton handles everything graphically related to the button, while class Simon stores most of the logic of the game. Several global variables are used to store states in the draw loop. 
+
+Note that the FPS is slowed down to 2 frames/second -- any faster and you will miss the transitions easily
+
+Part of the logic of the draw loop + mouse pressed/release was based off of Saxion-ACT's simon code -- especially in ironing out the bugs with timing and making sure that the 'on' animation lights up when pressed
+
+https://github.com/SaxionACT-Art-and-Technology/Processing-Simon-Says
+
+
+*/
 
 import java.util.ArrayList;
 
+//for ease of access I just kept most of the states here...could store it in class Simon alternatively
 Simon simon;
-boolean clickedButtonFlag = false;
-boolean simonSays = true;	//keep a state machine here to keep track of when it is simon's turn
-int timeDelay = 0;
+PImage winScreen;
 
-boolean start = false;	//starting flag
-boolean wrong = false;
-boolean userWent = false;
-int currentButtonSelected = -1; //the current button selected
+boolean simonSays = true; //keep a state machine here to keep track of when it is simon's turn
+
+boolean start = false;	//flag to start new game flag
+boolean wrong = false;	//keep track of whether user was wrong last turn
+
+int currentButtonSelected = -1; //the current button selected by the user
 int simonsPosition = 0; //position of how far along in the string of sequences the light is
-PImage img;
-final int FPS = 2;
 
-int startTime, timer;
-
-
-//if the current button selected is equal to the button that is being pressed;
-
+int timer;	//generate a timer to add some timing between transitions and states
+final int FPS = 2;	//fps -- KEEP THIS LOW so the player sees transitions
 
 
 public void setup(){
-	size(800, 800);
-	//fullScreen();
+
+	//setup
+	size(1000, 1000);
 	background(255);
 	smooth();
 	ellipseMode(RADIUS);
@@ -43,66 +51,59 @@ public void setup(){
 	imageMode(CENTER);
 	frameRate(FPS);
 
+	//simon class	
 	simon = new Simon();
 
-	simon.buttons.add(new SimonButton(width/2 - 90, height/2 - 90, 150, 150, 229, 93, 135, 100, 0));
+	//load some other stuff
+	winScreen = loadImage("assets/winner.jpg");
+	int dimensions = 150;
+	int idCounter = 0;
 
-	simon.buttons.add(new SimonButton(width/2 + 90, height/2 - 90, 150, 150, 244, 208, 63, 100, 1));
-
-	
-	simon.buttons.add(new SimonButton(width/2 - 90, height/2 + 90, 150, 150, 22, 160, 33, 100, 2));
-
-	simon.buttons.add(new SimonButton(width/2 + 90, height/2 + 90, 150, 150, 95, 195, 228, 100, 3));
-
-	startTime = millis();
-
-	/*for (int i = 0; i < 4; i++){
-		SimonButton b = new SimonButton(width/5 *i+1, (i % 2) * height/4 , 150, 150, 50*(i+1), 40*(i+1), 40*(i+1), 100, i);
-		simon.buttons.add(b);
-	}*/
-
+	//generate buttons
+	for (int i = 0; i < 3; i++){
+		for (int j = 0; j < 3; j++){
+			simon.buttons.add(new SimonButton((i+1) * width/4, (j+1) * height/4, dimensions, dimensions, idCounter));
+			idCounter++;
+		}
+	}
 }
 
-//check if it is first win condition
-//if not, check if it is simon's turn
-//if your turn, wait until you 
+/*
+Using a state machine to keep track of where we are gameplay-wise
+Logic is as follows:
++ Checking the start/win/lose conditions
++ If Simon's turn, run through sequence to display
++ Wait for user input
+*/
 public void draw(){
-	//pulse then wait for user input
-	//
-	//if start or replied to, then animate and flash
 
-	/*if (round == 1 || clickedButtonFlag == true){
-
-		//wait for user input
-	}*/
 	clear();
-	background(255);
+	background(0, 191,255);
 	simon.displayStats();
 
-
+	//Go through start/win/lose conditions, yadda yadda...
 	if (!start){
 		simon.displayStart();
 	}
-
 	else if (simon.checkWinStatus() == true){
 		simon.displayWin();
-		img = loadImage("winner.jpg");
-		image(img, width/2, height/2);
+		image(winScreen, width/2, height/2);
 	}
-
 	else if (simon.checkLifeStatus() == false){
 		simon.displayLose();
 	}
 
+
+	//The interesting part
 	else{
 		
 		if (millis() >= timer){
 			simon.resetButtons();
 		}
 
-
-
-
+		//Run through Simon's turn
+		//The first condition is there to reset the alternate animation for half a second and then transition to the next one
+		//The second condition is a timer that runs the animation for 1s intervals
 		if (simonSays){
 			if (millis() - timer > 1000 && millis() - timer <= 1500){
 				simon.resetButtons();
@@ -111,26 +112,14 @@ public void draw(){
 				simon.displaySimonSays();
 				simonsTurn();
 			}
-
-			//simonsTurn();
-			
-			//Thread.sleep(1000);
-			//simonSays = false;
-
 		}
+
+		//User's turn -- this doesn't really do anything since most of the user input comes from mouse
 		else{
-			//simon.resetButtons();
-			/*if (millis() - timer >= 000){ 
-				simon.displayYouSay();
-				//yourTurn();
-			}*/
-			//yourTurn();
-			
-
-				simon.displayYouSay();
-			
+			simon.displayYouSay();
 		}
 
+		//Draw the buttons
 		for (int i = 0; i < simon.buttons.size(); i++){
 			simon.buttons.get(i).drawButton();
 		}
@@ -138,39 +127,39 @@ public void draw(){
 	}	
 }
 
-
+//If it's simon's turn
+//Since the sequence of buttons for all of the game's rounds are generated already in Simon's constructor, this just iterates through that counter and displays 
+//Uses a timer and a position counter (currentLight) 
 void simonsTurn(){
 
-	if (millis() >= timer){
+	if (millis() >= timer){	
+		//Set position of which button (currentLight) to animate
 		int currentLight = simon.counters[simonsPosition];
 		simon.buttons.get(currentLight).setAnimFlag(true);
 		println("Simon's position: " + simonsPosition);
 
+		//Advance to next button to animate up until the current round
 		if (simonsPosition < simon.round){
 			simonsPosition++;
 			println("Advancing round: " + simonsPosition);
 		}
+
+		//reset the position of Simon's animation sequence that we finished walking through
 		else{
-			//if we finished, then advance
 			simonSays = false;
 			simonsPosition = 0;
-
-			/*if (!wrong){
-				simon.resetButtons();
-			}*/
 			timer = millis() + simon.turnDuration;
 		}
 	}
 }
 
+//Placeholder mainly
 void yourTurn(){
-	/*for (int i = 0; i < simon.buttons.size(); i++){
-		simon.buttons.get(i).setAnimFlag(false);
-	}*/
-	println("Round " + simon.round + " lP" + simonsPosition);
-
+	println("Your Turn");
 }
 
+//I split up most of the user logic similarly to saxion-ACT's version of Simon, since this allows for the animation to become more apparent when the user presses a button
+//Checks if it is not Simon's turn, then animates pressed button
 void mousePressed(){
 	if (!simonSays){
 		for (int i = 0; i < simon.buttons.size(); i++){ 
@@ -184,9 +173,10 @@ void mousePressed(){
 	}
 }
 
+//Checks logic if it is the right button in the sequence that we pressed
 void mouseReleased(){
 
-	//starts the game
+	//Advances the game if we're at the start screen
 	if (start == false){
 		start = true;
 		return;
@@ -200,13 +190,11 @@ void mouseReleased(){
 
 			//if selected
 			if (simon.buttons.get(i).isClicked(mouseX, mouseY)){
-
 				currentButtonSelected = i;
 				simon.buttons.get(currentButtonSelected).setAnimFlag(true);
 
-
+				//advance if correct
 				if (simon.buttons.get(simon.counters[simonsPosition]).buttonID == currentButtonSelected){
-					//good! advance 
 					
 					wrong = false;
 
@@ -214,6 +202,8 @@ void mouseReleased(){
 						simonsPosition++;
 					}
 
+					//resets position if we followed the entire sequence correctly and passes the turn back to Simon
+					//Advances timer
 					else if (simonsPosition >= simon.round){
 						simonSays = true;
 						simonsPosition = 0;
@@ -223,14 +213,13 @@ void mouseReleased(){
 						simon.updateScore(1);
 		
 						timer = millis() + simon.turnDuration;
-
 					}
 				}
-
-
 			}
 		}
 
+		//If the user chose wrongly during the sequence, they must repeat the round
+		//They also lose one life
 		if (wrong){
 			simon.displayWrongMove();
 			simonSays = true;
@@ -238,18 +227,6 @@ void mouseReleased(){
 			simon.life--;
 			simon.updateScore(-1);
 			timer = millis() - simon.turnDuration;
-
 		}
-		
-		/*else{
-			
-		}*/
-	}
-	
-}
-
-void light(){
-
-	//delay(1000)
-	delay(1000);
+	}	
 }

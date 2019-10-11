@@ -1,44 +1,41 @@
-//keep track of state
+//Simon functions and display 
+//Most of the functions here are self explanatory
 public class Simon{
 	int score = 0;
 	int life = 3;
-	int round = 0; 	//start at 0 and use this as a counter, but present it as round+1
+	int round = 0; 
 
+	//how long one turn lasts
 	int turnDuration = 1000;
 
 
-	//constants
+	//total rounds and buttons 
 	int numRounds;
 	int numButtons;
 
 	boolean win = false;
 	
-	//list of all simon buttons
+	//ArrayList of all simon buttons
 	ArrayList<SimonButton> buttons;
 
-	//use round -1 to keep track of where we are 
 	//use this to advance the next round
 	int counters[];
 
-
-	//constructor for initializing the game simon
+	//Constructor for initialization
 	public Simon(){
-		numButtons = 4;
+		numButtons = 9;
 		numRounds = 8;
 
 		counters  = new int[numRounds];
 		buttons = new ArrayList<SimonButton>();
 
-		print("Lights: ");
 		for (int i = 0; i < numRounds; i++){
-			counters[i] = int(random(0, 40)) % 4;
-			print(counters[i] + " ");
-
+			counters[i] = int(random(0, numButtons));
 		}
 	}
 
 
-	//initialize by specifying some values
+	//Constructor with params
 	public Simon(int s, int l, int nb, int nr){	
 		counters  = new int[numRounds];
 		buttons = new ArrayList<SimonButton>();
@@ -50,13 +47,20 @@ public class Simon{
 		counters[round] = int(random(0, numButtons - 1));	
 	}
 
-
-	public void updateScore(int s){
+	//Update the score. No negative integers
+	public void updateScore(int s){	
 		score += s;
+		if (score < 0){
+			score = 0;
+		}
 	}
 
+	//Update life
 	public void updateLife(int s){
 		life -= s;
+		if (life < 0){
+			life = 0;
+		}
 	}
 
 	//checks whether the player has any lives left
@@ -78,29 +82,26 @@ public class Simon{
 		return false;
 	}
 
+	//Reset all animations to false
 	public void resetButtons(){
 		for (int i = 0; i < buttons.size(); i++){
 			buttons.get(i).setAnimFlag(false);
 		}
 	}
 
-
-
 	public void advanceRound(){
-		//advance the round and generate a random number for the next button
 		round++;
-		//counters[round] = int(random(0, numButtons - 1));	
-
 	}
 
+	//Stats for the player
 	public void displayStats(){
 		pushMatrix();
 		textSize(32);
 		fill(100, 200, 190);
-		text("Simon", width/2, 50);
+		text("SIMON", width/2, 50);
 
 		textSize(24);
-		fill(38, 160, 218);
+		fill(255,215,0);
 		if (round < 0){
 			text("Round --" + " of " + numRounds, width/2, 80);
 		}
@@ -117,6 +118,9 @@ public class Simon{
 		popMatrix();
 	}
 
+	/*
+	Displays win message, lose message, etc...self explanatory stuff
+	*/
 	public void displayWin(){
 		textSize(40);
 		fill(100, 200, 190);
@@ -138,23 +142,20 @@ public class Simon{
 	public void displayYouSay(){
 		textSize(40);
 		fill(100, 200, 190);
-		text("Copy Simon...", width/2, height - 60);
-		
+		text("Copy Simon...", width/2, height - 60);	
 	}
 
 	public void displayWrongMove(){
 		textSize(40);
-		fill(100, 200, 190);
-		text("Wrong! Try again...", width/2, height - 60);
+		fill(255, 20, 10);
+		text("Wrong! Try again...", width/2, height - 110);
 	}
 
 	public void displayStart(){
 		textSize(40);
-		fill(100, 200, 190);
+		fill(255,127,80);
 		text("Click anywhere to start...", width/2, height - 60);
 	}
-
-
 
 
 }
